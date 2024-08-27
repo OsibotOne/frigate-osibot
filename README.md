@@ -162,7 +162,7 @@ To enhance Frigate’s object detection performance, you can install and use the
 
 ### Instructions:
 
-\```bash
+```bash
 # Ensure your system is up to date
 sudo apt-get update && sudo apt-get upgrade -y
 
