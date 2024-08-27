@@ -75,7 +75,7 @@ sudo chmod +x /usr/local/bin/docker-compose
 
 # Verify the installation of Docker Compose
 docker-compose --version
-
+```
 
 ## Step 3: Installing Frigate with Docker Compose
 
