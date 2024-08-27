@@ -83,7 +83,7 @@ To set up Frigate on your Raspberry Pi 5, follow the steps below to create the D
 
 ### Instructions:
 
-\```bash
+```bash
 # Navigate to your home directory
 cd ~
 
@@ -153,7 +153,7 @@ docker-compose up -d
 docker-compose ps
 
 # If everything is set up correctly, open a web browser and navigate to http://<your-pi-ip-address>:5000 to access Frigate’s web interface.
-\```
+```
 
 
 ## Step 4: Installing Coral TPU
@@ -176,6 +176,6 @@ lsusb
 
 
 # Look for logs that indicate the Coral TPU is being used for object detection. Adjust your setup as needed if errors are reported.
-\```
+```
 
 
