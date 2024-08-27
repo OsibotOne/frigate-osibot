@@ -7,9 +7,7 @@ This guide provides step-by-step instructions to install Frigate on a Raspberry 
 1. [Setting Up the Raspberry Pi 5 in Headless Mode](#setting-up-the-raspberry-pi-5-in-headless-mode)
 2. [Installing Docker and Docker Compose](#installing-docker-and-docker-compose)
 3. [Installing Frigate with Docker Compose](#installing-frigate-with-docker-compose)
-4. [Configuring Frigate](#configuring-frigate)
-5. [Starting Frigate](#starting-frigate)
-6. [Accessing Frigate's Web Interface](#accessing-frigates-web-interface)
+4. [Installing coral TPU](#installing-coral-tpu)
 
 ## Setting Up the Raspberry Pi 5 in Headless Mode
 
@@ -54,4 +52,130 @@ This guide provides step-by-step instructions to install Frigate on a Raspberry 
 2. Connect to your Raspberry Pi using SSH:
    ```bash
    ssh username@hostname.local
+
+
+## Step 2: Installing Docker Compose
+
+To run Frigate on your Raspberry Pi 5, you need to install Docker Compose, which helps manage multi-container applications like Frigate.
+
+### Instructions:
+
+```bash
+# Update the package list and upgrade all packages
+sudo apt-get update && sudo apt-get upgrade -y
+
+# Install prerequisites for Docker Compose
+sudo apt-get install -y curl
+
+# Download Docker Compose
+sudo curl -L "https://github.com/docker/compose/releases/download/v2.10.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+
+# Apply executable permissions to the Docker Compose binary
+sudo chmod +x /usr/local/bin/docker-compose
+
+# Verify the installation of Docker Compose
+docker-compose --version
+
+
+## Step 3: Installing Frigate with Docker Compose
+
+To set up Frigate on your Raspberry Pi 5, follow the steps below to create the Docker Compose file and start Frigate.
+
+### Instructions:
+
+\```bash
+# Navigate to your home directory
+cd ~
+
+# Create a directory for Frigate
+mkdir frigate && cd frigate
+
+# Create a Docker Compose file for Frigate
+nano docker-compose.yml
+
+# Add the following content to the docker-compose.yml file
+version: '3.9'
+
+services:
+  frigate:
+    container_name: frigate
+    restart: unless-stopped
+    privileged: true
+    shm_size: '64mb'
+    image: ghcr.io/blakeblackshear/frigate:stable
+    devices:
+      - /dev/bus/usb:/dev/bus/usb
+      - /dev/video0:/dev/video0
+      - /dev/video1:/dev/video1
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ./config.yml:/config/config.yml:ro
+      - /media/frigate:/media/frigate
+      - type: tmpfs
+        target: /tmp/cache
+        tmpfs:
+          size: 1000000000
+    ports:
+      - "5000:5000"
+      - "1935:1935"
+    environment:
+      FRIGATE_RTSP_PASSWORD: "your_password_here"
+
+# Save and exit nano by pressing CTRL + X, then Y, then ENTER.
+
+# Create the Frigate configuration file
+nano config.yml
+
+# Add your Frigate configuration, for example:
+detectors:
+  coral:
+    type: edgetpu
+    device: usb
+
+cameras:
+  front_yard:
+    ffmpeg:
+      inputs:
+        - path: rtsp://username:password@camera-ip:port/stream
+          roles:
+            - detect
+    detect:
+      width: 1280
+      height: 720
+      fps: 5
+
+# Save and exit nano by pressing CTRL + X, then Y, then ENTER.
+
+# Launch Frigate with Docker Compose
+docker-compose up -d
+
+# Verify that Frigate is running
+docker-compose ps
+
+# If everything is set up correctly, open a web browser and navigate to http://<your-pi-ip-address>:5000 to access Frigate’s web interface.
+\```
+
+
+## Step 4: Installing Coral TPU
+
+To enhance Frigate’s object detection performance, you can install and use the Coral Edge TPU on your Raspberry Pi 5. Follow the steps below to set up the Coral TPU.
+
+### Instructions:
+
+\```bash
+# Ensure your system is up to date
+sudo apt-get update && sudo apt-get upgrade -y
+
+# Install the required packages for Coral TPU
+sudo apt-get install -y libedgetpu1-std
+
+# Verify that the Coral TPU is connected and recognized by the system
+lsusb
+
+# The Coral TPU should appear in the list of connected USB devices. Look for a device labelled "Global Unichip Corp." Once setup it will say "Google Inc"
+
+
+# Look for logs that indicate the Coral TPU is being used for object detection. Adjust your setup as needed if errors are reported.
+\```
+
 
